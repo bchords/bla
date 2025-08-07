@@ -6,8 +6,8 @@ on:
     branches: [main]
 
 env:
-  AZURE_WEBAPP_NAME: your-app-name-here    # Replace with your app name
-  RESOURCE_GROUP: your-resource-group      # Replace with your RG name
+  AZURE_WEBAPP_NAME: mutumapp1    # Replace with your app name
+  RESOURCE_GROUP: WebApp-mutum-RG      # Replace with your RG name
 
 jobs:
   build-and-deploy:
