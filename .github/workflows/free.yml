@@ -45,7 +45,7 @@ jobs:
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           package: fruitapi.zip
-          # No slot-name = deploys directly to production (no staging available)
+          # No slot-name = deploys directly to production (no staging available) ook
           
       - name: Verify deployment
         run: |
