@@ -1,6 +1,5 @@
 name: Deploy FruitAPI to Azure Shared Tier
 on:
-  
   pull_request:
     branches: [main]
 
@@ -30,10 +29,12 @@ jobs:
         run: dotnet publish FruitAPI/FruitAPI.csproj -c Release --output ./publish --no-build
         
       - name: Create deployment package
-        run: |
-          cd ./publish
-          zip -r ../fruitapi.zip *
-        shell: bash
+        run: Compress-Archive -Path ./publish/* -DestinationPath fruitapi.zip  # Use PowerShell for Windows
+        shell: powershell
+        
+      - name: Debug - List publish contents
+        run: dir ./publish  # Windows dir command to list files
+        shell: powershell
         
       - name: Azure Login
         uses: azure/login@v1
@@ -45,7 +46,7 @@ jobs:
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           package: fruitapi.zip
-          # No slot-name = deploys directly to production (no staging available) ook
+          # No slot-name = deploys directly to production (no staging available)
           
       - name: Verify deployment
         run: |
@@ -53,3 +54,4 @@ jobs:
           echo "App URL: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net"
           echo "Test API: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net/api/fruits"
           echo "⚠️  Note: No staging slot available on Shared tier"
+        shell: powershell
