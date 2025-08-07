@@ -1,7 +1,6 @@
 name: Deploy FruitAPI to Azure Shared Tier
 on:
-  push:
-    branches: [main]
+  
   pull_request:
     branches: [main]
 
