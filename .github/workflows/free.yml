@@ -1,0 +1,56 @@
+name: Deploy FruitAPI to Azure Shared Tier
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  AZURE_WEBAPP_NAME: your-app-name-here    # Replace with your app name
+  RESOURCE_GROUP: your-resource-group      # Replace with your RG name
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted  # Using your self-hosted runner
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+          
+      - name: Restore dependencies
+        run: dotnet restore FruitAPI/FruitAPI.csproj
+        
+      - name: Build application
+        run: dotnet build FruitAPI/FruitAPI.csproj --configuration Release --no-restore
+        
+      - name: Publish application
+        run: dotnet publish FruitAPI/FruitAPI.csproj -c Release --output ./publish --no-build
+        
+      - name: Create deployment package
+        run: |
+          cd ./publish
+          zip -r ../fruitapi.zip *
+        shell: bash
+        
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          
+      - name: Deploy to Azure Web App (Shared Tier - Default Slot Only)
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: fruitapi.zip
+          # No slot-name = deploys directly to production (no staging available)
+          
+      - name: Verify deployment
+        run: |
+          echo "Deployment completed to production!"
+          echo "App URL: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net"
+          echo "Test API: https://${{ env.AZURE_WEBAPP_NAME }}.azurewebsites.net/api/fruits"
+          echo "⚠️  Note: No staging slot available on Shared tier"
